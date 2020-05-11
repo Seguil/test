@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello AdvertController!{% endblock %}
+
+{% block body %}
+
+    {% for article in articles %}
+        <section class="article">
+            <article>
+                <h2>{{ article.title }}</h2>
+                <div class="metadata">Ecris le {{ article.createdAt | date('d/m/Y') }} à {{ article.createdAt | date('H:i')}} dans la catégorie Politique</div>
+                <div class="content">
+                    <img src="{{article.image}}" alt="">
+                    {{article.content | raw}}
+                    <a href="{{ path('article', {'id':article.id}) }}" class="btn btn-primaary">LIre la suite</a>
+                </div>
+            </article>
+        </section>
+    {% endfor %}
+{% endblock %}
