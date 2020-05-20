@@ -10,8 +10,10 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Article;
+use App\Entity\Comment;
 use App\Repository\ArticleRepository;
 use App\Form\ArticleType;
+use App\Form\CommentType;
 
 class AdvertController extends AbstractController
 {
@@ -21,7 +23,7 @@ class AdvertController extends AbstractController
     public function index(ArticleRepository $repo)
     {
         $articles = $repo->findAll();
-
+        
         return $this->render('advert/index.html.twig', [
             'controller_name' => 'AdvertController',
             'articles' => $articles
@@ -79,10 +81,25 @@ class AdvertController extends AbstractController
     /**
      * @Route("/advert/{id}", name="article")
      */
-    public function article(Article $article) {
+    public function article(Article $article, Request $request, EntityManagerInterface $manager) {
+        $comment = new Comment();
+
+        $form = $this->createForm(CommentType::class, $comment);
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid()) {
+            $comment->setCreatedAt(new \DateTime())
+                    ->setArticle($article);
+
+            $manager->persist($comment);
+            $manager->flush();
+
+            return $this->redirectToRoute('article', ['id' =>$article->getId()]);
+        }
 
         return $this->render('advert/article.html.twig', [
-            'article' => $article
+            'article' => $article,
+            'commentForm' =>$form->createView()
         ]);
     }
 
